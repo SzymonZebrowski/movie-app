@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-app
+spec:
+  selector:
+    matchLabels:
+      app: movie-app
+  template:
+    metadata:
+      labels:
+        app: movie-app
+    spec:
+      containers:
+      - name: backend
+        image: localhost:5001/movieapp:0.1
+        imagePullPolicy: Always
+        args:
+        - /movieapp
+        - -c
+        - /tmp/sample-config.yaml
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+        volumeMounts:
+        - name: cfg
+          mountPath: /tmp/
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 3
+      volumes:
+      - name: cfg
+        configMap:
+          name: config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+spec:
+  selector:
+    app: movie-app
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: NodePort
