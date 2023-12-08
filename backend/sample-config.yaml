@@ -1,0 +1,9 @@
+database:
+  name: movies
+  user: root
+  address: 172.18.0.3
+  port: 30472
+cache:
+  enabled: false
+  address: localhost
+  port: 6379

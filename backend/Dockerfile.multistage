@@ -1,0 +1,14 @@
+FROM golang:1.21 as builder
+WORKDIR /app
+ADD . .
+
+RUN go mod download
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /movieapp cmd/main.go
+
+FROM scratch
+COPY --from=builder /movieapp /movieapp
+
+EXPOSE 8080
+
+CMD ["/movieapp"]
